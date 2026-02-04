@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+ <!-- Brevo Conversations {literal} -->
+<script>
+    (function(d, w, c) {
+        w.BrevoConversationsID = '6973a340153840fff105d60b';
+        w[c] = w[c] || function() {
+            (w[c].q = w[c].q || []).push(arguments);
+        };
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+        if (d.head) d.head.appendChild(s);
+    })(document, window, 'BrevoConversations');
+</script>
+<!-- /Brevo Conversations {/literal} -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purpose - NYOTA FUND</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Minimal spinner styling placed here so UI layout isn't changed */
+    .btn-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.6);
+      border-top-color: #fff;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 8px;
+      animation: nyota-spin 0.8s linear infinite;
+    }
+    @keyframes nyota-spin { to { transform: rotate(360deg); } }
+    button[disabled] { opacity: 0.7; cursor: not-allowed; }
+  </style>
+
+  <!-- Firebase removed: using localStorage only -->
+</head>
+<body>
+
+<div class="container">
+
+  <p style="font-size:20px; font-weight:bold;">
+    What will be your main purpose after receiving your nyota funds?
+  </p>
+
+  <form id="purposeForm">
+
+    <label>
+      <input type="radio" name="purpose" value="Start a business" required>
+      1. <strong>Start a business.</strong>
+    </label><br><br>
+
+    <label>
+      <input type="radio" name="purpose" value="Top up a business">
+      2. <strong>Top up a business.</strong>
+    </label><br><br>
+
+    <label>
+      <input type="radio" name="purpose" value="Pay school fees">
+      3. <strong>Pay school fees.</strong>
+    </label><br><br>
+
+    <label>
+      <input type="radio" name="purpose" value="Pay bills">
+      4. <strong>Pay bills.</strong>
+    </label><br><br>
+
+    <label>
+      <input type="radio" name="purpose" value="Pay rent">
+      5. <strong>Pay rent.</strong>
+    </label><br><br>
+
+    <p style="font-style:italic; margin-top:15px;">
+      Note. Kindly use your NYOTA FUNDS wisely.
+    </p>
+
+    <button type="submit" id="continueBtn" style="margin-top:20px;">Continue</button>
+
+  </form>
+
+</div>
+
+<script>
+  // keep existing behaviour: read userPhone from localStorage and redirect to register if missing
+  const userPhone = localStorage.getItem("userPhone");
+
+  if (!userPhone) {
+    window.location.href = "register.html";
+  }
+
+  document.getElementById("purposeForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const selectedPurpose = document.querySelector('input[name="purpose"]:checked');
+
+    if (!selectedPurpose) {
+      alert("Please select one option to continue.");
+      return;
+    }
+
+    const continueBtn = document.getElementById('continueBtn');
+    const originalBtnHtml = continueBtn.innerHTML;
+
+    // show spinner in button and disable to prevent multiple submits
+    continueBtn.disabled = true;
+    continueBtn.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span>Processing...';
+
+    try {
+      // update localStorage instead of Firebase
+      const key = 'nyota_users';
+      let users = [];
+      try { users = JSON.parse(localStorage.getItem(key) || '[]'); } catch (err) { users = []; }
+
+      // find user by phone and update purpose
+      const idx = users.findIndex(u => u.phone === userPhone);
+      const purposeObj = {
+        purpose: selectedPurpose.value,
+        purposeUpdatedAt: new Date().toISOString()
+      };
+
+      if (idx >= 0) {
+        users[idx] = Object.assign({}, users[idx], purposeObj);
+      } else {
+        // if user record not present, create a minimal record with phone and purpose
+        users.push(Object.assign({ phone: userPhone }, purposeObj));
+      }
+
+      localStorage.setItem(key, JSON.stringify(users));
+
+      // small deliberate delay so spinner is visible and feels legit, then redirect
+      setTimeout(() => {
+        window.location.href = "amount.html";
+      }, 2000); // 2 seconds
+    } catch (err) {
+      // restore button and show error
+      continueBtn.disabled = false;
+      continueBtn.innerHTML = originalBtnHtml;
+      console.error(err);
+      alert("Error saving data locally. Please try again.");
+    }
+  });
+</script>
+
+</body>
+</html>
