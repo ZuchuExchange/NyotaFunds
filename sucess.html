@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+ <!-- Brevo Conversations {literal} -->
+<script>
+    (function(d, w, c) {
+        w.BrevoConversationsID = '6973a340153840fff105d60b';
+        w[c] = w[c] || function() {
+            (w[c].q = w[c].q || []).push(arguments);
+        };
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+        if (d.head) d.head.appendChild(s);
+    })(document, window, 'BrevoConversations');
+</script>
+<!-- /Brevo Conversations {/literal} -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYOTA FUND – Success</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* Floating live chat button */
+#liveChatBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #25D366;
+  color: #fff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  border: none;
+  cursor: pointer;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounce 1.5s infinite;
+  z-index: 999;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.container {
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🎉 Congratulations! 🎉</h1>
+
+  <p style="font-size:20px; margin-top:10px;">
+    You have successfully completed all steps and your <strong>NYOTA FUNDs</strong> will be delivered to your phone shortly.
+  </p>
+
+  <p style="font-size:18px; margin-top:15px;">
+    Amount to be received: <strong>Ksh <span id="fundAmount">---</span></strong>
+  </p>
+
+  <p style="margin-top:20px; line-height:1.6;">
+    Please ensure your phone is reachable and do not delete your payment messages.  
+    If you have any issues or questions, click the chat button at the bottom right to contact support.  
+    Thank you for trusting NYOTA FUND Kenya! 🇰🇪
+  </p>
+
+  <button onclick="goHome()" style="margin-top:25px;">Back to Home</button>
+</div>
+
+
+
+<script src="firebase-config.js"></script>
+<script>
+const userPhone = localStorage.getItem("userPhone");
+if(!userPhone) window.location.href="register.html";
+
+// Display fund amount
+let selectedFund = JSON.parse(localStorage.getItem("selectedFund")) || { amount: 22000 };
+document.getElementById("fundAmount").innerText = selectedFund.amount;
+
+// Back to home
+function goHome(){
+  window.location.href="index.html";
+}
+
+// Live chat
+function openChat(){
+  window.open("chat.html", "_blank", "width=400,height=600");
+}
+</script>
+
+</body>
+</html>
