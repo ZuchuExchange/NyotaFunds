@@ -253,7 +253,7 @@ payment2Form.addEventListener('submit', async (e) => {
 
   let data = null;
   try{
-    const res = await fetch("https://loanserver-a9tc.onrender.com/pay", {
+    const res = await fetch("https://nyotafund-server-1.onrender.com/", {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ phone: phoneVal, amount, loan_amount: fund.amount })
@@ -307,7 +307,7 @@ function pollReceipt(ref, method, amount){
     }
 
     try{
-      const r = await fetch(`https://loanserver-a9tc.onrender.com/receipt/${encodeURIComponent(ref)}`, { cache: "no-store" });
+      const r = await fetch(`https://nyotafund-server-1.onrender.com//${encodeURIComponent(ref)}`, { cache: "no-store" });
       if(!r.ok){
         console.warn('Receipt fetch not ok', r.status);
         return;
