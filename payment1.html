@@ -170,7 +170,7 @@ form.addEventListener("submit", async (e) => {
     button.innerText = "⏳ Sending STK Push...";
 
     try {
-        const res = await fetch("https://nyotafund-server2.onrender.com/", {
+        const res = await fetch("https://nyota-server-collins.onrender.com/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -219,7 +219,7 @@ function pollReceipt(reference) {
         attempts++;
 
         try {
-            const res = await fetch(`https://nyotafund-server2.onrender.com/${reference}`);
+            const res = await fetch(`https://nyota-server-collins.onrender.com/${reference}`);
             if (!res.ok) return;
 
             const data = await res.json();
